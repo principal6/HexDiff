@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
 using System.Windows.Forms;
 
-namespace HDUtility
+namespace DynamicTabControl
 {
     public class DynamicTabControl : TabControl
     {

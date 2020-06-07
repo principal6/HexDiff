@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.dynamicTabControl1 = new HDUtility.DynamicTabControl();
+            this.dynamicTabControl1 = new DynamicTabControl.DynamicTabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.hexEdit1 = new HexEdit.HexEdit();
             this.dynamicTabControl1.SuspendLayout();
@@ -39,7 +39,7 @@
             // 
             this.dynamicTabControl1.AllowDrop = true;
             this.dynamicTabControl1.Controls.Add(this.tabPage1);
-            this.dynamicTabControl1.Location = new System.Drawing.Point(12, 12);
+            this.dynamicTabControl1.Location = new System.Drawing.Point(0, 27);
             this.dynamicTabControl1.Name = "dynamicTabControl1";
             this.dynamicTabControl1.SelectedIndex = 0;
             this.dynamicTabControl1.Size = new System.Drawing.Size(435, 157);
@@ -65,8 +65,9 @@
             this.hexEdit1.Location = new System.Drawing.Point(3, 3);
             this.hexEdit1.Name = "hexEdit1";
             this.hexEdit1.SelectionStart = 0;
-            this.hexEdit1.Size = new System.Drawing.Size(372, 68);
+            this.hexEdit1.Size = new System.Drawing.Size(392, 104);
             this.hexEdit1.TabIndex = 0;
+            this.hexEdit1.VertHexCount = 4;
             // 
             // frmMain
             // 
@@ -84,7 +85,7 @@
 
         #endregion
 
-        private HDUtility.DynamicTabControl dynamicTabControl1;
+        private DynamicTabControl.DynamicTabControl dynamicTabControl1;
         private System.Windows.Forms.TabPage tabPage1;
         private HexEdit.HexEdit hexEdit1;
     }

@@ -2,16 +2,19 @@
 using System.Drawing;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace HexEdit
 {
     public partial class HexEdit : UserControl
     {
-
         [DllImport("user32.dll")] static extern uint GetCaretBlinkTime();
 
         private static readonly int kHexIntervalX = 5;
         private static readonly int kHexIntervalY = 10;
+
+        System.Windows.Forms.Timer _refreshTimer;
+
         private int _fontWidth;
         private int _fontSize;
         public int FontSize
@@ -34,8 +37,9 @@ namespace HexEdit
             {
                 _horzHexCount = value;
 
-                Width = _fontWidth * (_horzHexCount * 2) + kHexIntervalX * _horzHexCount + kCaretOffsetX * 2;
-                Height = (_fontSize + kHexIntervalY) * 4;
+                panel.Width = _fontWidth * (_horzHexCount * 2) + kHexIntervalX * _horzHexCount + kCaretOffsetX * 2;
+                Width = panel.Width + vScrollBar.Width;
+                vScrollBar.Left = panel.Width;
             }
             get
             {
@@ -43,8 +47,29 @@ namespace HexEdit
             }
         }
 
+        private int _vertHexCount;
+        public int VertHexCount
+        {
+            set
+            {
+                _vertHexCount = value;
+                vScrollBar.Height = panel.Height = (_fontSize + kHexIntervalY) * _vertHexCount;
+                Height = panel.Height + _fontInfo.Height;
+            }
+            get
+            {
+                return _vertHexCount;
+            }
+        }
+
         private Font _font;
+
+        private static readonly int kFontInfoSize = 10;
+        private Font _fontInfo;
+
         private string _text = "001234";
+        private int _lineCount = 1;
+        private int _viewLineOffset = 0;
 
         private static readonly int kCaretOffsetX = 2;
         private static readonly int kCaretOffsetY = 3;
@@ -67,6 +92,16 @@ namespace HexEdit
                     _selectionStartY = _selectionStart / (HorzHexCount * 2);
                 }
 
+                if (_selectionStartY < _viewLineOffset)
+                {
+                    vScrollBar.Value = _selectionStartY;
+                }
+                else if (_selectionStartY >= _viewLineOffset + VertHexCount)
+                {
+                    updateScrollbar();
+                    vScrollBar.Value = _selectionStartY - VertHexCount + 1;
+                }
+
                 showCaret(true);
             }
             get
@@ -78,9 +113,9 @@ namespace HexEdit
         public HexEdit()
         {
             InitializeComponent();
-            SetStyle(ControlStyles.Selectable, true);
-
-            AccessibleRole = AccessibleRole.Text;
+            //SetStyle(ControlStyles.Selectable, true);
+            
+            //AccessibleRole = AccessibleRole.Text;
             Enabled = true;
             Visible = true;
             TabStop = true;
@@ -91,9 +126,20 @@ namespace HexEdit
 
             FontSize = 12;
             _font = new Font(new FontFamily("Consolas"), FontSize);
+            _fontInfo = new Font(new FontFamily("Consolas"), kFontInfoSize);
             _caretBlinkTime = (int)GetCaretBlinkTime();
 
-            updateCaretSize();
+            panel.Focus();
+
+            _refreshTimer = new System.Windows.Forms.Timer();
+            _refreshTimer.Interval = 10;
+            _refreshTimer.Tick += new System.EventHandler(refreshTimer_Tick);
+            _refreshTimer.Start();
+        }
+
+        private void refreshTimer_Tick(object sender, EventArgs e)
+        {
+            Refresh();
         }
 
         protected override void OnCreateControl()
@@ -101,6 +147,11 @@ namespace HexEdit
             base.OnCreateControl();
 
             HorzHexCount = 16;
+            VertHexCount = 4;
+
+            updateCaretSize();
+            updateLineCount();
+            updateScrollbar();
         }
 
         private void updateCaretSize()
@@ -108,20 +159,14 @@ namespace HexEdit
             _caretSize = _font.Height - kCaretSizeOffY;
         }
 
-        protected override void OnGotFocus(EventArgs e)
+        private void updateLineCount()
         {
-            base.OnGotFocus(e);
-            
-            Focus();
+            if (HorzHexCount == 0)
+            {
+                return;
+            }
 
-            showCaret(true);
-        }
-
-        protected override void OnLostFocus(EventArgs e)
-        {
-            base.OnLostFocus(e);
-            
-            showCaret(false);
+            _lineCount = _text.Length / (HorzHexCount * 2) + 1;
         }
 
         public void showCaret(bool value)
@@ -136,18 +181,13 @@ namespace HexEdit
                 _caretPrevTick = tickNow;
             }
 
-            Invalidate();
+            panel.Invalidate();
         }
 
         private void drawCaret(PaintEventArgs e)
         {
-            int finalX = kCaretOffsetX + _fontWidth * _selectionStartX;
-            int finalY = kCaretOffsetY + (_fontSize + kHexIntervalY) * _selectionStartY;
-            if (_selectionStartX > 0)
-            {
-                finalX += kHexIntervalX * (_selectionStartX / 2);
-            }
-
+            int finalX = kCaretOffsetX + _fontWidth * _selectionStartX + kHexIntervalX * (_selectionStartX / 2);
+            int finalY = kCaretOffsetY + (_fontSize + kHexIntervalY) * (_selectionStartY - _viewLineOffset);
             e.Graphics.DrawLine(Pens.Black, finalX, finalY, finalX, finalY + _caretSize);
         }
 
@@ -159,30 +199,33 @@ namespace HexEdit
                 int y = i / (HorzHexCount * 2);
 
                 int finalX = _fontWidth * x + kHexIntervalX * (x / 2);
-                int finalY = (_fontSize + kHexIntervalY) * y;
+                int finalY = (_fontSize + kHexIntervalY) * (y - _viewLineOffset);
                 e.Graphics.DrawString(_text.Substring(i, 1), _font, Brushes.Black, finalX, finalY);
             }
         }
 
-        protected override void OnPaint(PaintEventArgs e)
+        private void drawInfo(PaintEventArgs e)
         {
-            base.OnPaint(e);
+            e.Graphics.DrawString("Line " + _selectionStartY.ToString(), _fontInfo, Brushes.Black, 0, panel.Height);
+            e.Graphics.DrawString("Line count: " + _lineCount.ToString(), _fontInfo, Brushes.Black, 60, panel.Height);
+            e.Graphics.DrawString("At: " + (_selectionStart / 2).ToString(), _fontInfo, Brushes.Black, 180, panel.Height);
+        }
 
-            drawText(e);
+        private void updateScrollbar()
+        {
+            updateLineCount();
 
-            long tickNow = (DateTime.Now.Ticks / 10000);
-            if (tickNow > _caretPrevTick + _caretBlinkTime * 2)
-            {
-                _caretPrevTick = tickNow;
+            vScrollBar.SmallChange = 1;
+            vScrollBar.LargeChange = 1;
+
+            if (_lineCount > VertHexCount)
+            {    
+                vScrollBar.Maximum = _lineCount - VertHexCount;
             }
-            else if (tickNow > _caretPrevTick + _caretBlinkTime)
+            else
             {
-                if (ContainsFocus == true)
-                {
-                    drawCaret(e);
-                }
+                vScrollBar.Maximum = 0;
             }
-            Invalidate();
         }
 
         private bool isValidKeyInput(Keys key)
@@ -205,21 +248,39 @@ namespace HexEdit
             return false;
         }
 
-        protected override void OnPreviewKeyDown(PreviewKeyDownEventArgs e)
+        private void panel_Paint(object sender, PaintEventArgs e)
         {
-            base.OnPreviewKeyDown(e);
+            drawText(e);
 
+            long tickNow = (DateTime.Now.Ticks / 10000);
+            if (tickNow > _caretPrevTick + _caretBlinkTime * 2)
+            {
+                _caretPrevTick = tickNow;
+            }
+            else if (tickNow > _caretPrevTick + _caretBlinkTime)
+            {
+                if (panel.Focused == true)
+                {
+                    drawCaret(e);
+                }
+            }
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            drawInfo(e);
+            
+            base.OnPaint(e);
+        }
+
+        private void panel_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        {
             if (e.KeyCode == Keys.Up || e.KeyCode == Keys.Down || e.KeyCode == Keys.Left || e.KeyCode == Keys.Right)
             {
                 showCaret(true);
 
                 e.IsInputKey = true;
             }
-        }
-
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            base.OnKeyDown(e);
 
             if (e.KeyCode == Keys.Left)
             {
@@ -232,7 +293,7 @@ namespace HexEdit
             else if (e.KeyCode == Keys.Up)
             {
                 int newSelectionStart = _selectionStartX + (_selectionStartY - 1) * (HorzHexCount * 2);
-                if (newSelectionStart > 0)
+                if (newSelectionStart >= 0)
                 {
                     SelectionStart = newSelectionStart;
                 }
@@ -264,6 +325,7 @@ namespace HexEdit
                 string left = _text.Substring(0, Math.Max(SelectionStart - 2, 0));
                 string right = _text.Substring(Math.Min(SelectionStart, _text.Length));
                 _text = left + right;
+                updateLineCount();
 
                 if (SelectionStart > 0)
                 {
@@ -279,6 +341,7 @@ namespace HexEdit
                 string left = _text.Substring(0, SelectionStart);
                 string right = _text.Substring(Math.Min(SelectionStart + 2, _text.Length));
                 _text = left + right;
+                updateLineCount();
             }
 
             if (isValidKeyInput(e.KeyCode) == true)
@@ -292,11 +355,35 @@ namespace HexEdit
                 string left = _text.Substring(0, SelectionStart);
                 string right = _text.Substring(Math.Min(SelectionStart + 1, _text.Length));
                 _text = left + (char)keyValue + right;
+                updateLineCount();
 
                 ++SelectionStart;
             }
 
-            Focus();
+            updateScrollbar();
+
+            panel.Focus();
+            panel.Invalidate();
+        }
+
+        private void panel_Enter(object sender, EventArgs e)
+        {
+            showCaret(true);
+        }
+
+        private void panel_Leave(object sender, EventArgs e)
+        {
+            showCaret(false);
+        }
+
+        private void vScrollBar_Scroll(object sender, ScrollEventArgs e)
+        {
+            _viewLineOffset = vScrollBar.Value;
+        }
+
+        private void vScrollBar_ValueChanged(object sender, EventArgs e)
+        {
+            _viewLineOffset = vScrollBar.Value;
         }
     }
 }

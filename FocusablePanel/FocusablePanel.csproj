@@ -4,10 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{67D727C4-23DD-4579-82E0-1110BA1C8926}</ProjectGuid>
+    <ProjectGuid>{A63AE2F7-1DA2-43BC-83AF-991C1CC12434}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>HexEdit</RootNamespace>
-    <AssemblyName>HexEdit</AssemblyName>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>FocusablePanel</RootNamespace>
+    <AssemblyName>FocusablePanel</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -32,35 +33,19 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
     <Reference Include="System.Net.Http" />
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HexEdit.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="HexEdit.Designer.cs">
-      <DependentUpon>HexEdit.cs</DependentUpon>
+    <Compile Include="FocusablePanel.cs">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Service Include="{94E38DFF-614B-4cbd-B67C-F211BB35CE8B}" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HexEdit.resx">
-      <DependentUpon>HexEdit.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\FocusablePanel\FocusablePanel.csproj">
-      <Project>{a63ae2f7-1da2-43bc-83af-991c1cc12434}</Project>
-      <Name>FocusablePanel</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DynamicTabControl", "Dynami
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HexDiff", "HexDiff\HexDiff.csproj", "{C051D924-80DB-4C04-9B51-113F83B48CE7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FocusablePanel", "FocusablePanel\FocusablePanel.csproj", "{A63AE2F7-1DA2-43BC-83AF-991C1CC12434}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{C051D924-80DB-4C04-9B51-113F83B48CE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C051D924-80DB-4C04-9B51-113F83B48CE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C051D924-80DB-4C04-9B51-113F83B48CE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A63AE2F7-1DA2-43BC-83AF-991C1CC12434}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A63AE2F7-1DA2-43BC-83AF-991C1CC12434}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A63AE2F7-1DA2-43BC-83AF-991C1CC12434}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A63AE2F7-1DA2-43BC-83AF-991C1CC12434}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
