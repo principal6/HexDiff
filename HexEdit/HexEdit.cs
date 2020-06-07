@@ -10,6 +10,10 @@ namespace HexEdit
     {
         [DllImport("user32.dll")] static extern uint GetCaretBlinkTime();
 
+        private static readonly int kIndentX = 40;
+        private static readonly int kIndentY = 20;
+        private static readonly int kInfoLineNumberOffsetX = 2;
+        private static readonly int kInfoLineNumberOffsetY = 3;
         private static readonly int kHexIntervalX = 5;
         private static readonly int kHexIntervalY = 10;
 
@@ -37,9 +41,10 @@ namespace HexEdit
             {
                 _horzHexCount = value;
 
-                panel.Width = _fontWidth * (_horzHexCount * 2) + kHexIntervalX * _horzHexCount + kCaretOffsetX * 2;
-                Width = panel.Width + vScrollBar.Width;
-                vScrollBar.Left = panel.Width;
+                panel.Left = kIndentX;
+                panel.Width = _fontWidth * (_horzHexCount * 2) + kHexIntervalX * _horzHexCount + kCaretOffsetX;
+                Width = kIndentX + panel.Width + vScrollBar.Width;
+                vScrollBar.Left = kIndentX + panel.Width;
             }
             get
             {
@@ -53,8 +58,11 @@ namespace HexEdit
             set
             {
                 _vertHexCount = value;
+
+                panel.Top = kIndentY;
+                vScrollBar.Top = kIndentY;
                 vScrollBar.Height = panel.Height = (_fontSize + kHexIntervalY) * _vertHexCount;
-                Height = panel.Height + _fontInfo.Height;
+                Height = panel.Height + _fontInfo.Height + kIndentY;
             }
             get
             {
@@ -206,9 +214,19 @@ namespace HexEdit
 
         private void drawInfo(PaintEventArgs e)
         {
-            e.Graphics.DrawString("Line " + _selectionStartY.ToString(), _fontInfo, Brushes.Black, 0, panel.Height);
-            e.Graphics.DrawString("Line count: " + _lineCount.ToString(), _fontInfo, Brushes.Black, 60, panel.Height);
-            e.Graphics.DrawString("At: " + (_selectionStart / 2).ToString(), _fontInfo, Brushes.Black, 180, panel.Height);
+            for (int y = 0; y < VertHexCount; ++y)
+            {
+                int finalY = kIndentY + (_fontSize + kHexIntervalY) * y;
+                e.Graphics.DrawString((_viewLineOffset + y).ToString("D4"), _fontInfo, Brushes.Black,
+                    kInfoLineNumberOffsetX, kInfoLineNumberOffsetY + finalY);
+            }
+
+            e.Graphics.DrawString("Line: " + _selectionStartY.ToString(), _fontInfo, Brushes.Black, 
+                kIndentX + 0, kIndentY + panel.Height);
+            e.Graphics.DrawString("Line count: " + _lineCount.ToString(), _fontInfo, Brushes.Black, 
+                kIndentX + 70, kIndentY + panel.Height);
+            e.Graphics.DrawString("At: " + (_selectionStart / 2).ToString(), _fontInfo, Brushes.Black, 
+                kIndentX + 190, kIndentY + panel.Height);
         }
 
         private void updateScrollbar()

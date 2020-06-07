@@ -42,7 +42,7 @@
             this.dynamicTabControl1.Location = new System.Drawing.Point(0, 27);
             this.dynamicTabControl1.Name = "dynamicTabControl1";
             this.dynamicTabControl1.SelectedIndex = 0;
-            this.dynamicTabControl1.Size = new System.Drawing.Size(435, 157);
+            this.dynamicTabControl1.Size = new System.Drawing.Size(478, 157);
             this.dynamicTabControl1.TabIndex = 0;
             // 
             // tabPage1
@@ -51,9 +51,9 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(427, 131);
+            this.tabPage1.Size = new System.Drawing.Size(470, 131);
             this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "tabPage1";
+            this.tabPage1.Text = "Untitled";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
             // hexEdit1
@@ -65,7 +65,7 @@
             this.hexEdit1.Location = new System.Drawing.Point(3, 3);
             this.hexEdit1.Name = "hexEdit1";
             this.hexEdit1.SelectionStart = 0;
-            this.hexEdit1.Size = new System.Drawing.Size(392, 104);
+            this.hexEdit1.Size = new System.Drawing.Size(430, 104);
             this.hexEdit1.TabIndex = 0;
             this.hexEdit1.VertHexCount = 4;
             // 
