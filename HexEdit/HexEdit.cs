@@ -138,11 +138,21 @@ namespace HexEdit
             _caretBlinkTime = (int)GetCaretBlinkTime();
 
             panel.Focus();
+            panel.MouseWheel += Panel_MouseWheel;
 
             _refreshTimer = new System.Windows.Forms.Timer();
             _refreshTimer.Interval = 10;
             _refreshTimer.Tick += new System.EventHandler(refreshTimer_Tick);
             _refreshTimer.Start();
+        }
+
+        private void Panel_MouseWheel(object sender, MouseEventArgs e)
+        {
+            int delta = -e.Delta / SystemInformation.MouseWheelScrollDelta;
+            int newValue = vScrollBar.Value + delta;
+            newValue = Math.Max(newValue, 0);
+            newValue = Math.Min(newValue, vScrollBar.Maximum);
+            vScrollBar.Value = newValue;
         }
 
         private void refreshTimer_Tick(object sender, EventArgs e)
