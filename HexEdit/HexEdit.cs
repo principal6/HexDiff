@@ -307,13 +307,9 @@ namespace HexEdit
             vScrollBar.SmallChange = 1;
             vScrollBar.LargeChange = 1;
 
-            if (_lineCount > VertHexCount)
+            if (_lineCount >= VertHexCount)
             {    
                 vScrollBar.Maximum = _lineCount - VertHexCount;
-            }
-            else if (_lineCount == VertHexCount)
-            {
-                vScrollBar.Maximum = _lineCount - VertHexCount + 1;
             }
             else
             {
