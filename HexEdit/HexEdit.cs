@@ -68,7 +68,12 @@ namespace HexEdit
 
                 if (_fontInfo != null)
                 {
-                    Height = panel.Height + _fontInfo.Height + kIndentY;
+                    int newHeight = panel.Height + _fontInfo.Height + kIndentY;
+                    if (0 < HorzHexCount && HorzHexCount < 16)
+                    {
+                        newHeight += kFontInfoSizePadded * 2;
+                    }
+                    Height = newHeight;
                 }
             }
             get
@@ -81,6 +86,7 @@ namespace HexEdit
         private Font _font;
 
         private static readonly int kFontInfoSize = 10;
+        private static readonly int kFontInfoSizePadded = kFontInfoSize + 2;
         private Font _fontInfo;
 
         private List<byte> _bytes = new List<byte>();
@@ -270,14 +276,28 @@ namespace HexEdit
             int midLineY = (kIndentY - kMidLineHeight) / 2;
             e.Graphics.DrawLine(Pens.Black, midLineX, midLineY, midLineX, midLineY + kMidLineHeight);
 
-            e.Graphics.DrawString("Lines: " + _lineCount.ToString(), _fontInfo, Brushes.Black,
+            if (HorzHexCount >= 16)
+            {
+                e.Graphics.DrawString("Lines: " + _lineCount.ToString(), _fontInfo, Brushes.Black,
                 kIndentX + 0, kIndentY + panel.Height);
 
-            e.Graphics.DrawString("Line At: " + _caretAtY.ToString(), _fontInfo, Brushes.Black, 
-                kIndentX + 100, kIndentY + panel.Height);
-            
-            e.Graphics.DrawString("Byte At: " + _caretAt.ToString() + " (0x" + _caretAt.ToString("X") + ")",
-                _fontInfo, Brushes.Black, kIndentX + 220, kIndentY + panel.Height);
+                e.Graphics.DrawString("Line At: " + _caretAtY.ToString(), _fontInfo, Brushes.Black,
+                    kIndentX + 100, kIndentY + panel.Height);
+
+                e.Graphics.DrawString("Byte At: " + _caretAt.ToString() + " (0x" + _caretAt.ToString("X") + ")",
+                    _fontInfo, Brushes.Black, kIndentX + 220, kIndentY + panel.Height);
+            }
+            else
+            {
+                e.Graphics.DrawString("Lines: " + _lineCount.ToString(), _fontInfo, Brushes.Black,
+                    kIndentX, kIndentY + panel.Height);
+
+                e.Graphics.DrawString("Line At: " + _caretAtY.ToString(), _fontInfo, Brushes.Black,
+                    kIndentX, kIndentY + panel.Height + kFontInfoSizePadded);
+
+                e.Graphics.DrawString("Byte At: " + _caretAt.ToString() + " (0x" + _caretAt.ToString("X") + ")",
+                    _fontInfo, Brushes.Black, kIndentX, kIndentY + panel.Height + kFontInfoSizePadded * 2);
+            }
         }
 
         private void updateScrollbar()
