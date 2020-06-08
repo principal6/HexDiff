@@ -257,13 +257,14 @@ namespace HexEdit
             int midLineY = (kIndentY - kMidLineHeight) / 2;
             e.Graphics.DrawLine(Pens.Black, midLineX, midLineY, midLineX, midLineY + kMidLineHeight);
 
-            e.Graphics.DrawString("Line: " + _selectionStartY.ToString(), _fontInfo, Brushes.Black, 
+            e.Graphics.DrawString("Lines: " + _lineCount.ToString(), _fontInfo, Brushes.Black,
                 kIndentX + 0, kIndentY + panel.Height);
-            e.Graphics.DrawString("Line count: " + _lineCount.ToString(), _fontInfo, Brushes.Black, 
-                kIndentX + 70, kIndentY + panel.Height);
 
-            e.Graphics.DrawString("At: " + _selectionStart.ToString() + " (0x" + _selectionStart.ToString("X") + ")",
-                _fontInfo, Brushes.Black, kIndentX + 190, kIndentY + panel.Height);
+            e.Graphics.DrawString("Line At: " + _selectionStartY.ToString(), _fontInfo, Brushes.Black, 
+                kIndentX + 100, kIndentY + panel.Height);
+            
+            e.Graphics.DrawString("Byte At: " + _selectionStart.ToString() + " (0x" + _selectionStart.ToString("X") + ")",
+                _fontInfo, Brushes.Black, kIndentX + 220, kIndentY + panel.Height);
         }
 
         private void updateScrollbar()
