@@ -64,7 +64,7 @@
             this.hexEdit1.HorzHexCount = 16;
             this.hexEdit1.Location = new System.Drawing.Point(3, 3);
             this.hexEdit1.Name = "hexEdit1";
-            this.hexEdit1.SelectionStart = 0;
+            this.hexEdit1.CaretAt = 0;
             this.hexEdit1.Size = new System.Drawing.Size(430, 104);
             this.hexEdit1.TabIndex = 0;
             this.hexEdit1.VertHexCount = 4;
