@@ -116,17 +116,20 @@ namespace HexEdit
                     _caretAtY = _caretAt / HorzHexCount;
                 }
 
+                updateLineCount();
+                updateScrollbar();
+
                 if (_caretAtY < _viewLineOffset)
                 {
                     vScrollBar.Value = _caretAtY;
                 }
                 else if (_caretAtY >= _viewLineOffset + VertHexCount)
                 {
-                    updateScrollbar();
                     vScrollBar.Value = _caretAtY - VertHexCount + 1;
                 }
 
                 _isInserting = false;
+                
                 showCaret(true);
             }
             get
