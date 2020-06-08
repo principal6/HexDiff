@@ -364,6 +364,59 @@ namespace HexEdit
 
         private void panel_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
+            // Ctrl + X
+            if (e.Control == true && e.KeyCode == Keys.X)
+            {
+                if (_bytes.Count > 0)
+                {
+                    int byteAt = Math.Min(CaretAt, _bytes.Count - 1);
+                    byte caretByte = _bytes[byteAt];
+                    string byteStr = caretByte.ToString("X");
+                    Clipboard.SetText(byteStr);
+
+                    _bytes.RemoveAt(byteAt);
+
+                    if (CaretAt > _bytes.Count)
+                    {
+                        CaretAt = _bytes.Count;
+                    }
+                }
+                return;
+            }
+
+            // Ctrl + C
+            if (e.Control == true && e.KeyCode == Keys.C)
+            {
+                if (_bytes.Count > 0)
+                {
+                    int byteAt = Math.Min(CaretAt, _bytes.Count - 1);
+                    byte caretByte = _bytes[byteAt];
+                    string byteStr = caretByte.ToString("X");
+                    Clipboard.SetText(byteStr);
+                }
+                return;
+            }
+
+            // Ctrl + V
+            if (e.Control == true && e.KeyCode == Keys.V)
+            {
+                string clipboardStr = Clipboard.GetText();
+                if (clipboardStr != null)
+                {
+                    int byteCountGuess = clipboardStr.Length / 2;
+                    byte parsedByte;
+                    for (int i = 0; i < byteCountGuess; ++i)
+                    {
+                        if (byte.TryParse(clipboardStr.Substring(i * 2, 2), System.Globalization.NumberStyles.HexNumber, null, out parsedByte) == true)
+                        {
+                            _bytes.Insert(CaretAt, parsedByte);
+                            ++CaretAt;
+                        }
+                    }
+                }
+                return;
+            }
+
             if (e.KeyCode == Keys.Up || e.KeyCode == Keys.Down || e.KeyCode == Keys.Left || e.KeyCode == Keys.Right)
             {
                 showCaret(true);
