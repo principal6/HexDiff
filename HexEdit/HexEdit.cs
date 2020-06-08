@@ -65,7 +65,11 @@ namespace HexEdit
                 panel.Top = kIndentY;
                 vScrollBar.Top = kIndentY;
                 vScrollBar.Height = panel.Height = (_fontSize + kHexIntervalY) * _vertHexCount;
-                Height = panel.Height + _fontInfo.Height + kIndentY;
+
+                if (_fontInfo != null)
+                {
+                    Height = panel.Height + _fontInfo.Height + kIndentY;
+                }
             }
             get
             {
@@ -73,14 +77,14 @@ namespace HexEdit
             }
         }
 
+        private static readonly int kDefaultFontSize = 12;
         private Font _font;
 
         private static readonly int kFontInfoSize = 10;
         private Font _fontInfo;
 
-        //private string _text = "001234";
+        private List<byte> _bytes = new List<byte>();
         private bool _isInserting = false;
-        private List<byte> _bytes = new List<byte> { 0x00, 0x12, 0x34 };
         private int _lineCount = 1;
         private int _viewLineOffset = 0;
 
@@ -130,16 +134,13 @@ namespace HexEdit
             InitializeComponent();
             //SetStyle(ControlStyles.Selectable, true);
             
-            //AccessibleRole = AccessibleRole.Text;
             Enabled = true;
             Visible = true;
             TabStop = true;
             DoubleBuffered = true;
             CausesValidation = true;
             
-            CaretAt = 0;
-
-            FontSize = 12;
+            FontSize = kDefaultFontSize;
             _font = new Font(new FontFamily("Consolas"), FontSize);
             _fontInfo = new Font(new FontFamily("Consolas"), kFontInfoSize);
             _caretBlinkTime = (int)GetCaretBlinkTime();
@@ -151,6 +152,10 @@ namespace HexEdit
             _refreshTimer.Interval = 10;
             _refreshTimer.Tick += new System.EventHandler(refreshTimer_Tick);
             _refreshTimer.Start();
+
+            CaretAt = 0;
+            HorzHexCount = 16;
+            VertHexCount = 8;
         }
 
         private void Panel_MouseWheel(object sender, MouseEventArgs e)
@@ -167,12 +172,12 @@ namespace HexEdit
             Refresh();
         }
 
-        protected override void OnCreateControl()
+        protected override void OnResize(EventArgs e)
         {
-            base.OnCreateControl();
+            base.OnResize(e);
 
-            HorzHexCount = 16;
-            VertHexCount = 4;
+            HorzHexCount = HorzHexCount;
+            VertHexCount = VertHexCount;
 
             updateCaretSize();
             updateLineCount();
@@ -181,7 +186,10 @@ namespace HexEdit
 
         private void updateCaretSize()
         {
-            _caretSize = _font.Height - kCaretSizeOffY;
+            if (_font != null)
+            {
+                _caretSize = _font.Height - kCaretSizeOffY;
+            }
         }
 
         private void updateLineCount()
@@ -191,7 +199,12 @@ namespace HexEdit
                 return;
             }
 
-            _lineCount = _bytes.Count / HorzHexCount + 1;
+            if (_bytes.Count == 0)
+            {
+                _lineCount = 0;
+                return;
+            }
+            _lineCount = (_bytes.Count - 1) / HorzHexCount + 1;
         }
 
         public void showCaret(bool value)
