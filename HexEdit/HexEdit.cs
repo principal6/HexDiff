@@ -374,7 +374,7 @@ namespace HexEdit
             // 수정
             if (e.KeyCode == Keys.Back)
             {
-                if (_bytes.Count > 0)
+                if (_bytes.Count > 0 && CaretAt > 0)
                 {
                     if (_isInserting == true)
                     {
@@ -383,7 +383,7 @@ namespace HexEdit
                     }
                     else
                     {
-                        _bytes.RemoveAt(CaretAt - 1);
+                       _bytes.RemoveAt(CaretAt - 1);
                         --CaretAt;
                     }
                     
@@ -392,7 +392,7 @@ namespace HexEdit
             }
             else if (e.KeyCode == Keys.Delete)
             {
-                if (_bytes.Count > 0)
+                if (_bytes.Count > 0 && CaretAt < _bytes.Count)
                 {
                     _bytes.RemoveAt(CaretAt);
                     updateLineCount();
@@ -462,7 +462,7 @@ namespace HexEdit
         private int calculateCaretAtByMousePosition(int mouseX, int mouseY)
         {
             int atX = Math.Min(Math.Max(mouseX / (_fontWidth * 2 + kHexIntervalX), 0), HorzHexCount - 1);
-            int atY = _viewLineOffset + (mouseY / (_fontSize + kHexIntervalY));
+            int atY = Math.Min(Math.Max(_viewLineOffset + (mouseY / (_fontSize + kHexIntervalY)), 0), _lineCount - 1);
             return Math.Min(Math.Max(atY * HorzHexCount + atX, 0), _bytes.Count);
         }
 
