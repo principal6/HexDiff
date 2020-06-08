@@ -1,4 +1,4 @@
-﻿namespace HexEdit
+﻿namespace HexEditProject
 {
     partial class HexEdit
     {
@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.vScrollBar = new System.Windows.Forms.VScrollBar();
-            this.panel = new FocusablePanel.FocusablePanel();
+            this.panel = new HexEditProject.FocusablePanel();
             this.SuspendLayout();
             // 
             // vScrollBar
@@ -43,15 +43,13 @@
             // 
             // panel
             // 
-            this.panel.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.panel.BackColor = System.Drawing.SystemColors.ActiveCaption;
-            this.panel.Location = new System.Drawing.Point(34, 19);
+            this.panel.Location = new System.Drawing.Point(3, 3);
             this.panel.Name = "panel";
             this.panel.Size = new System.Drawing.Size(200, 100);
-            this.panel.TabIndex = 2;
+            this.panel.TabIndex = 3;
             this.panel.TabStop = true;
             this.panel.Paint += new System.Windows.Forms.PaintEventHandler(this.panel_Paint);
-            this.panel.Enter += new System.EventHandler(this.panel_Enter);
             this.panel.Leave += new System.EventHandler(this.panel_Leave);
             this.panel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.panel_MouseDown);
             this.panel.MouseMove += new System.Windows.Forms.MouseEventHandler(this.panel_MouseMove);
@@ -72,6 +70,6 @@
         #endregion
 
         private System.Windows.Forms.VScrollBar vScrollBar;
-        private FocusablePanel.FocusablePanel panel;
+        private FocusablePanel panel;
     }
 }

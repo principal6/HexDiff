@@ -30,7 +30,8 @@
         {
             this.dynamicTabControl1 = new DynamicTabControl.DynamicTabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.hexEdit1 = new HexEdit.HexEdit();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.hexEdit1 = new HexEditProject.HexEdit();
             this.dynamicTabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.SuspendLayout();
@@ -39,10 +40,11 @@
             // 
             this.dynamicTabControl1.AllowDrop = true;
             this.dynamicTabControl1.Controls.Add(this.tabPage1);
-            this.dynamicTabControl1.Location = new System.Drawing.Point(0, 12);
+            this.dynamicTabControl1.Controls.Add(this.tabPage2);
+            this.dynamicTabControl1.Location = new System.Drawing.Point(2, 12);
             this.dynamicTabControl1.Name = "dynamicTabControl1";
             this.dynamicTabControl1.SelectedIndex = 0;
-            this.dynamicTabControl1.Size = new System.Drawing.Size(483, 268);
+            this.dynamicTabControl1.Size = new System.Drawing.Size(474, 250);
             this.dynamicTabControl1.TabIndex = 0;
             // 
             // tabPage1
@@ -51,10 +53,20 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(475, 242);
+            this.tabPage1.Size = new System.Drawing.Size(466, 224);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "tabPage1";
             this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // tabPage2
+            // 
+            this.tabPage2.Location = new System.Drawing.Point(4, 22);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage2.Size = new System.Drawing.Size(192, 74);
+            this.tabPage2.TabIndex = 1;
+            this.tabPage2.Text = "tabPage2";
+            this.tabPage2.UseVisualStyleBackColor = true;
             // 
             // hexEdit1
             // 
@@ -85,6 +97,7 @@
 
         private DynamicTabControl.DynamicTabControl dynamicTabControl1;
         private System.Windows.Forms.TabPage tabPage1;
-        private HexEdit.HexEdit hexEdit1;
+        private HexEditProject.HexEdit hexEdit1;
+        private System.Windows.Forms.TabPage tabPage2;
     }
 }

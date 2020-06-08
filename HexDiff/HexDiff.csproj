@@ -84,13 +84,9 @@
       <Project>{aa5764a5-23a4-4a69-ab7a-0bb5ed84204c}</Project>
       <Name>DynamicTabControl</Name>
     </ProjectReference>
-    <ProjectReference Include="..\FocusablePanel\FocusablePanel.csproj">
-      <Project>{A63AE2F7-1DA2-43BC-83AF-991C1CC12434}</Project>
-      <Name>FocusablePanel</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\HexEdit\HexEdit.csproj">
+    <ProjectReference Include="..\HexEdit\HexEditProject.csproj">
       <Project>{67d727c4-23dd-4579-82e0-1110ba1c8926}</Project>
-      <Name>HexEdit</Name>
+      <Name>HexEditProject</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -2,11 +2,9 @@
 using System.Drawing;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Collections.Generic;
-using System.Linq;
 
-namespace HexEdit
+namespace HexEditProject
 {
     public partial class HexEdit : UserControl
     {
