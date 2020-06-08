@@ -79,7 +79,7 @@ namespace HexEdit
         private Font _fontInfo;
 
         //private string _text = "001234";
-        private bool _inserting = false;
+        private bool _isInserting = false;
         private List<byte> _bytes = new List<byte> { 0x00, 0x12, 0x34 };
         private int _lineCount = 1;
         private int _viewLineOffset = 0;
@@ -116,7 +116,7 @@ namespace HexEdit
                     vScrollBar.Value = _caretAtY - VertHexCount + 1;
                 }
 
-                _inserting = false;
+                _isInserting = false;
                 showCaret(true);
             }
             get
@@ -233,7 +233,7 @@ namespace HexEdit
                 }
 
                 Brush brush = Brushes.Black;
-                if (i == CaretAt && _inserting == true)
+                if (i == CaretAt && _isInserting == true)
                 {
                     brush = Brushes.DarkRed;
                 }
@@ -376,10 +376,18 @@ namespace HexEdit
             {
                 if (_bytes.Count > 0)
                 {
-                    _bytes.RemoveAt(CaretAt - 1);
+                    if (_isInserting == true)
+                    {
+                        _bytes.RemoveAt(CaretAt);
+                        _isInserting = false;
+                    }
+                    else
+                    {
+                        _bytes.RemoveAt(CaretAt - 1);
+                        --CaretAt;
+                    }
+                    
                     updateLineCount();
-
-                    --CaretAt;
                 }
             }
             else if (e.KeyCode == Keys.Delete)
@@ -388,6 +396,8 @@ namespace HexEdit
                 {
                     _bytes.RemoveAt(CaretAt);
                     updateLineCount();
+
+                    _isInserting = false;
                 }
             }
 
@@ -399,7 +409,7 @@ namespace HexEdit
                     keyValue -= 48;
                 }
 
-                if (_inserting == true)
+                if (_isInserting == true)
                 {
                     byte currByte = _bytes[CaretAt];
                     string hexStr = currByte.ToString("X");
@@ -419,7 +429,7 @@ namespace HexEdit
                     _bytes.Insert(CaretAt, parsed);
                     updateLineCount();
 
-                    _inserting = true;
+                    _isInserting = true;
                 }
             }
 
@@ -451,7 +461,7 @@ namespace HexEdit
 
         private int calculateCaretAtByMousePosition(int mouseX, int mouseY)
         {
-            int atX = mouseX / (_fontWidth * 2 + kHexIntervalX);
+            int atX = Math.Min(Math.Max(mouseX / (_fontWidth * 2 + kHexIntervalX), 0), HorzHexCount - 1);
             int atY = _viewLineOffset + (mouseY / (_fontSize + kHexIntervalY));
             return Math.Min(Math.Max(atY * HorzHexCount + atX, 0), _bytes.Count);
         }
