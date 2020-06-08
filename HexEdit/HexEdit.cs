@@ -210,7 +210,7 @@ namespace HexEdit
                 _lineCount = 0;
                 return;
             }
-            _lineCount = (_bytes.Count - 1) / HorzHexCount + 1;
+            _lineCount = _bytes.Count / HorzHexCount + 1;
         }
 
         public void showCaret(bool value)
@@ -310,6 +310,10 @@ namespace HexEdit
             if (_lineCount > VertHexCount)
             {    
                 vScrollBar.Maximum = _lineCount - VertHexCount;
+            }
+            else if (_lineCount == VertHexCount)
+            {
+                vScrollBar.Maximum = _lineCount - VertHexCount + 1;
             }
             else
             {
