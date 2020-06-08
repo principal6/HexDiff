@@ -3,6 +3,8 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace HexEdit
 {
@@ -11,11 +13,12 @@ namespace HexEdit
         [DllImport("user32.dll")] static extern uint GetCaretBlinkTime();
 
         private static readonly int kIndentX = 40;
-        private static readonly int kIndentY = 20;
+        private static readonly int kIndentY = 10;
         private static readonly int kInfoLineNumberOffsetX = 2;
         private static readonly int kInfoLineNumberOffsetY = 3;
         private static readonly int kHexIntervalX = 5;
         private static readonly int kHexIntervalY = 10;
+        private static readonly int kMidLineHeight = (int)(kIndentY * 0.8);
 
         System.Windows.Forms.Timer _refreshTimer;
 
@@ -75,7 +78,9 @@ namespace HexEdit
         private static readonly int kFontInfoSize = 10;
         private Font _fontInfo;
 
-        private string _text = "001234";
+        //private string _text = "001234";
+        private bool _inserting = false;
+        private List<byte> _bytes = new List<byte> { 0x00, 0x12, 0x34 };
         private int _lineCount = 1;
         private int _viewLineOffset = 0;
 
@@ -94,10 +99,11 @@ namespace HexEdit
             set
             {
                 _selectionStart = value;
+
                 if (HorzHexCount > 0)
                 {
-                    _selectionStartX = _selectionStart % (HorzHexCount * 2);
-                    _selectionStartY = _selectionStart / (HorzHexCount * 2);
+                    _selectionStartX = _selectionStart % HorzHexCount;
+                    _selectionStartY = _selectionStart / HorzHexCount;
                 }
 
                 if (_selectionStartY < _viewLineOffset)
@@ -110,6 +116,7 @@ namespace HexEdit
                     vScrollBar.Value = _selectionStartY - VertHexCount + 1;
                 }
 
+                _inserting = false;
                 showCaret(true);
             }
             get
@@ -184,7 +191,7 @@ namespace HexEdit
                 return;
             }
 
-            _lineCount = _text.Length / (HorzHexCount * 2) + 1;
+            _lineCount = _bytes.Count / HorzHexCount + 1;
         }
 
         public void showCaret(bool value)
@@ -204,21 +211,36 @@ namespace HexEdit
 
         private void drawCaret(PaintEventArgs e)
         {
-            int finalX = kCaretOffsetX + _fontWidth * _selectionStartX + kHexIntervalX * (_selectionStartX / 2);
+            int finalX = kCaretOffsetX + _fontWidth * _selectionStartX * 2 + kHexIntervalX * _selectionStartX;
             int finalY = kCaretOffsetY + (_fontSize + kHexIntervalY) * (_selectionStartY - _viewLineOffset);
             e.Graphics.DrawLine(Pens.Black, finalX, finalY, finalX, finalY + _caretSize);
         }
 
-        private void drawText(PaintEventArgs e)
+        private void drawHexString(PaintEventArgs e)
         {
-            for (int i = 0; i < _text.Length; ++i)
+            for (int i = 0; i < _bytes.Count; ++i)
             {
-                int x = i % (HorzHexCount * 2);
-                int y = i / (HorzHexCount * 2);
+                int x = i % HorzHexCount;
+                int y = i / HorzHexCount;
 
-                int finalX = _fontWidth * x + kHexIntervalX * (x / 2);
+                int finalX = _fontWidth * (x * 2) + kHexIntervalX * x;
                 int finalY = (_fontSize + kHexIntervalY) * (y - _viewLineOffset);
-                e.Graphics.DrawString(_text.Substring(i, 1), _font, Brushes.Black, finalX, finalY);
+
+                string hexStr = _bytes[i].ToString("X");
+                if (hexStr.Length == 1)
+                {
+                    hexStr = "0" + hexStr;
+                }
+
+                Brush brush = Brushes.Black;
+                if (i == SelectionStart && _inserting == true)
+                {
+                    brush = Brushes.DarkRed;
+                }
+                e.Graphics.DrawString(hexStr.Substring(0, 1), _font, brush, finalX, finalY);
+                
+                finalX += kHexIntervalX * 2;
+                e.Graphics.DrawString(hexStr.Substring(1, 1), _font, brush, finalX, finalY);
             }
         }
 
@@ -231,12 +253,17 @@ namespace HexEdit
                     kInfoLineNumberOffsetX, kInfoLineNumberOffsetY + finalY);
             }
 
+            int midLineX = kIndentX + panel.Width / 2;
+            int midLineY = (kIndentY - kMidLineHeight) / 2;
+            e.Graphics.DrawLine(Pens.Black, midLineX, midLineY, midLineX, midLineY + kMidLineHeight);
+
             e.Graphics.DrawString("Line: " + _selectionStartY.ToString(), _fontInfo, Brushes.Black, 
                 kIndentX + 0, kIndentY + panel.Height);
             e.Graphics.DrawString("Line count: " + _lineCount.ToString(), _fontInfo, Brushes.Black, 
                 kIndentX + 70, kIndentY + panel.Height);
-            e.Graphics.DrawString("At: " + (_selectionStart / 2).ToString(), _fontInfo, Brushes.Black, 
-                kIndentX + 190, kIndentY + panel.Height);
+
+            e.Graphics.DrawString("At: " + _selectionStart.ToString() + " (0x" + _selectionStart.ToString("X") + ")",
+                _fontInfo, Brushes.Black, kIndentX + 190, kIndentY + panel.Height);
         }
 
         private void updateScrollbar()
@@ -278,7 +305,7 @@ namespace HexEdit
 
         private void panel_Paint(object sender, PaintEventArgs e)
         {
-            drawText(e);
+            drawHexString(e);
 
             long tickNow = (DateTime.Now.Ticks / 10000);
             if (tickNow > _caretPrevTick + _caretBlinkTime * 2)
@@ -316,11 +343,11 @@ namespace HexEdit
             }
             else if (e.KeyCode == Keys.Right)
             {
-                SelectionStart = Math.Min(SelectionStart + 1, _text.Length);
+                SelectionStart = Math.Min(SelectionStart + 1, _bytes.Count);
             }
             else if (e.KeyCode == Keys.Up)
             {
-                int newSelectionStart = _selectionStartX + (_selectionStartY - 1) * (HorzHexCount * 2);
+                int newSelectionStart = _selectionStartX + (_selectionStartY - 1) * HorzHexCount;
                 if (newSelectionStart >= 0)
                 {
                     SelectionStart = newSelectionStart;
@@ -328,8 +355,8 @@ namespace HexEdit
             }
             else if (e.KeyCode == Keys.Down)
             {
-                int newSelectionStart = _selectionStartX + (_selectionStartY + 1) * (HorzHexCount * 2);
-                if (newSelectionStart <= _text.Length)
+                int newSelectionStart = _selectionStartX + (_selectionStartY + 1) * HorzHexCount;
+                if (newSelectionStart <= _bytes.Count)
                 {
                     SelectionStart = newSelectionStart;
                 }
@@ -340,36 +367,30 @@ namespace HexEdit
             }
             else if (e.KeyCode == Keys.End)
             {
-                SelectionStart = _text.Length;
+                SelectionStart = _bytes.Count;
             }
 
             // 수정
             if (e.KeyCode == Keys.Back)
             {
-                if (SelectionStart % 2 != 0)
+                if (_bytes.Count > 0)
                 {
-                    ++SelectionStart;
-                }
-                string left = _text.Substring(0, Math.Max(SelectionStart - 2, 0));
-                string right = _text.Substring(Math.Min(SelectionStart, _text.Length));
-                _text = left + right;
-                updateLineCount();
+                    _bytes.RemoveAt(SelectionStart - 1);
+                    updateLineCount();
 
-                if (SelectionStart > 0)
-                {
-                    SelectionStart -= 2;
+                    if (SelectionStart > 0)
+                    {
+                        --SelectionStart;
+                    }
                 }
             }
             else if (e.KeyCode == Keys.Delete)
             {
-                if (SelectionStart % 2 != 0)
+                if (_bytes.Count > 0)
                 {
-                    --SelectionStart;
+                    _bytes.RemoveAt(SelectionStart);
+                    updateLineCount();
                 }
-                string left = _text.Substring(0, SelectionStart);
-                string right = _text.Substring(Math.Min(SelectionStart + 2, _text.Length));
-                _text = left + right;
-                updateLineCount();
             }
 
             if (isValidKeyInput(e.KeyCode) == true)
@@ -380,12 +401,28 @@ namespace HexEdit
                     keyValue -= 48;
                 }
 
-                string left = _text.Substring(0, SelectionStart);
-                string right = _text.Substring(Math.Min(SelectionStart + 1, _text.Length));
-                _text = left + (char)keyValue + right;
-                updateLineCount();
+                if (_inserting == true)
+                {
+                    byte currByte = _bytes[SelectionStart];
+                    string hexStr = currByte.ToString("X");
+                    hexStr = hexStr.Substring(0, 1) + (char)keyValue;
+                    byte parsed = byte.Parse(hexStr, System.Globalization.NumberStyles.HexNumber);
+                    _bytes[SelectionStart] = parsed;
 
-                ++SelectionStart;
+                    updateLineCount();
+                    ++SelectionStart;
+                }
+                else
+                {
+                    string hexStr = "";
+                    hexStr += (char)keyValue;
+                    hexStr += "0";
+                    byte parsed = byte.Parse(hexStr, System.Globalization.NumberStyles.HexNumber);
+                    _bytes.Insert(SelectionStart, parsed);
+                    updateLineCount();
+
+                    _inserting = true;
+                }
             }
 
             updateScrollbar();
