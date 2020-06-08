@@ -356,9 +356,9 @@ namespace HexEdit
             else if (e.KeyCode == Keys.Down)
             {
                 int newSelectionStart = _selectionStartX + (_selectionStartY + 1) * HorzHexCount;
-                if (newSelectionStart <= _bytes.Count)
+                if (_lineCount > _selectionStartY + 1)
                 {
-                    SelectionStart = newSelectionStart;
+                    SelectionStart = Math.Min(newSelectionStart, _bytes.Count);
                 }
             }
             else if (e.KeyCode == Keys.Home)
