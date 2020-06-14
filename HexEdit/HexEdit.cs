@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace HexEditProject
 {
@@ -18,23 +19,70 @@ namespace HexEditProject
         private static readonly int kHexIntervalY = 10;
         private static readonly int kMidLineHeight = (int)(kIndentY * 0.8);
 
+        // Timer
         System.Windows.Forms.Timer _refreshTimer;
 
-        private int _fontWidth;
-        private int _fontSize;
-        public int FontSize
+        private static readonly Color kEditBackColor = Color.FromArgb(240, 240, 255);
+        private Color _editBackColor;
+        public Color EditBackColor
+        {
+            set 
+            {
+                _editBackColor = value;
+                if (panel != null)
+                {
+                    panel.BackColor = _editBackColor;
+                }
+            }
+            get
+            {
+                return _editBackColor;
+            }
+        }
+
+        // === Font
+        private static readonly FontFamily kDefaultFontFamily = new FontFamily("Consolas");
+        private static readonly int kDefaultFontSize = 12;
+        private int _fontWidth = kDefaultFontSize - 3;
+
+        private static readonly int kFontInfoSize = 10;
+        private static readonly int kFontInfoSizePadded = kFontInfoSize + 2;
+
+        private static readonly Color kInfoTextColorDisabled = Color.FromArgb(127, 127, 127);
+        private Color _infoTextColorEnabled = Color.Black;
+        private Color _infoTextColor;
+        [Description("줄 번호, 줄 개수 등 정보 텍스트의 색상입니다.")]
+        public Color InfoTextColor
         {
             set
             {
-                _fontSize = value;
-                _fontWidth = _fontSize - 3; 
+                _infoTextColorEnabled = value;
+                updateFontInfoColor();
             }
-            get 
+            get
             {
-                return _fontSize; 
+                return _infoTextColorEnabled;
             }
         }
-        
+
+        private Font _fontInfo;
+
+        private Color _insertingForeColor = Color.DarkRed;
+        [Description("입력 중인 Hex Digit 이 가질 색상입니다.")]
+        public Color InsertingForeColor
+        {
+            set
+            {
+                _insertingForeColor = value;
+            }
+            get
+            {
+                return _insertingForeColor;
+            }
+        }
+        // ===
+
+        // HorzHexCount
         private int _horzHexCount;
         public int HorzHexCount
         {
@@ -53,6 +101,7 @@ namespace HexEditProject
             }
         }
 
+        // VertHexCount
         private int _vertHexCount;
         public int VertHexCount
         {
@@ -62,7 +111,7 @@ namespace HexEditProject
 
                 panel.Top = kIndentY;
                 vScrollBar.Top = kIndentY;
-                vScrollBar.Height = panel.Height = (_fontSize + kHexIntervalY) * _vertHexCount;
+                vScrollBar.Height = panel.Height = ((int)Font.Size + kHexIntervalY) * _vertHexCount;
 
                 if (_fontInfo != null)
                 {
@@ -80,25 +129,18 @@ namespace HexEditProject
             }
         }
 
-        private static readonly int kDefaultFontSize = 12;
-        private Font _font;
-
-        private static readonly int kFontInfoSize = 10;
-        private static readonly int kFontInfoSizePadded = kFontInfoSize + 2;
-        private Font _fontInfo;
-
         private List<byte> _bytes = new List<byte>();
         private bool _isInserting = false;
         private int _lineCount = 1;
         private int _viewLineOffset = 0;
 
+        // === Caret
         private static readonly int kCaretOffsetX = 2;
         private static readonly int kCaretOffsetY = 3;
         private static readonly int kCaretSizeOffY = 4;
         private int _caretBlinkTime;
         private float _caretSize;
         private long _caretPrevTick;
-
         private int _caretAt = 0;
         private int _caretAtX = 0;
         private int _caretAtY = 0;
@@ -135,21 +177,20 @@ namespace HexEditProject
                 return _caretAt;
             }
         }
+        // ===
 
         public HexEdit()
         {
             InitializeComponent();
-            //SetStyle(ControlStyles.Selectable, true);
-            
-            Enabled = true;
+
             Visible = true;
             TabStop = true;
             DoubleBuffered = true;
             CausesValidation = true;
-            
-            FontSize = kDefaultFontSize;
-            _font = new Font(new FontFamily("Consolas"), FontSize);
-            _fontInfo = new Font(new FontFamily("Consolas"), kFontInfoSize);
+
+            EditBackColor = kEditBackColor;
+            Font = new Font(kDefaultFontFamily, kDefaultFontSize);
+            _fontInfo = new Font(kDefaultFontFamily, kFontInfoSize);
             _caretBlinkTime = (int)GetCaretBlinkTime();
 
             panel.Focus();
@@ -163,6 +204,8 @@ namespace HexEditProject
             CaretAt = 0;
             HorzHexCount = 16;
             VertHexCount = 8;
+
+            updateFontInfoColor();
         }
 
         private void Panel_MouseWheel(object sender, MouseEventArgs e)
@@ -191,12 +234,37 @@ namespace HexEditProject
             updateScrollbar();
         }
 
+        protected override void OnFontChanged(EventArgs e)
+        {
+            base.OnFontChanged(e);
+
+            _fontWidth = (int)Font.Size - 3;
+        }
+
+        private void updateFontInfoColor()
+        {
+            if (Enabled == true)
+            {
+                _infoTextColor = _infoTextColorEnabled;
+            }
+            else
+            {
+                _infoTextColor = kInfoTextColorDisabled;
+            }
+        }
+
+        protected override void OnEnabledChanged(EventArgs e)
+        {
+            base.OnEnabledChanged(e);
+
+            updateFontInfoColor();
+
+            Refresh();
+        }
+
         private void updateCaretSize()
         {
-            if (_font != null)
-            {
-                _caretSize = _font.Height - kCaretSizeOffY;
-            }
+            _caretSize = Font.Height - kCaretSizeOffY;
         }
 
         private void updateLineCount()
@@ -232,7 +300,7 @@ namespace HexEditProject
         private void drawCaret(PaintEventArgs e)
         {
             int finalX = kCaretOffsetX + _fontWidth * _caretAtX * 2 + kHexIntervalX * _caretAtX;
-            int finalY = kCaretOffsetY + (_fontSize + kHexIntervalY) * (_caretAtY - _viewLineOffset);
+            int finalY = kCaretOffsetY + ((int)Font.Size + kHexIntervalY) * (_caretAtY - _viewLineOffset);
             e.Graphics.DrawLine(Pens.Black, finalX, finalY, finalX, finalY + _caretSize);
         }
 
@@ -244,7 +312,7 @@ namespace HexEditProject
                 int y = i / HorzHexCount;
 
                 int finalX = _fontWidth * (x * 2) + kHexIntervalX * x;
-                int finalY = (_fontSize + kHexIntervalY) * (y - _viewLineOffset);
+                int finalY = ((int)Font.Size + kHexIntervalY) * (y - _viewLineOffset);
 
                 string hexStr = _bytes[i].ToString("X");
                 if (hexStr.Length == 1)
@@ -252,24 +320,26 @@ namespace HexEditProject
                     hexStr = "0" + hexStr;
                 }
 
-                Brush brush = Brushes.Black;
+                Brush brush = new SolidBrush(ForeColor);
                 if (i == CaretAt && _isInserting == true)
                 {
-                    brush = Brushes.DarkRed;
+                    brush = new SolidBrush(InsertingForeColor);
                 }
-                e.Graphics.DrawString(hexStr.Substring(0, 1), _font, brush, finalX, finalY);
+                e.Graphics.DrawString(hexStr.Substring(0, 1), Font, brush, finalX, finalY);
                 
                 finalX += kHexIntervalX * 2;
-                e.Graphics.DrawString(hexStr.Substring(1, 1), _font, brush, finalX, finalY);
+                e.Graphics.DrawString(hexStr.Substring(1, 1), Font, brush, finalX, finalY);
             }
         }
 
         private void drawInfo(PaintEventArgs e)
         {
+            Brush brush = new SolidBrush(_infoTextColor);
+
             for (int y = 0; y < VertHexCount; ++y)
             {
-                int finalY = kIndentY + (_fontSize + kHexIntervalY) * y;
-                e.Graphics.DrawString((_viewLineOffset + y).ToString("D4"), _fontInfo, Brushes.Black,
+                int finalY = kIndentY + ((int)Font.Size + kHexIntervalY) * y;
+                e.Graphics.DrawString((_viewLineOffset + y).ToString("D4"), _fontInfo, brush,
                     kInfoLineNumberOffsetX, kInfoLineNumberOffsetY + finalY);
             }
 
@@ -279,25 +349,25 @@ namespace HexEditProject
 
             if (HorzHexCount >= 16)
             {
-                e.Graphics.DrawString("Lines: " + _lineCount.ToString(), _fontInfo, Brushes.Black,
+                e.Graphics.DrawString("Lines: " + _lineCount.ToString(), _fontInfo, brush,
                 kIndentX + 0, kIndentY + panel.Height);
 
-                e.Graphics.DrawString("Line At: " + _caretAtY.ToString(), _fontInfo, Brushes.Black,
+                e.Graphics.DrawString("Line At: " + _caretAtY.ToString(), _fontInfo, brush,
                     kIndentX + 100, kIndentY + panel.Height);
 
                 e.Graphics.DrawString("Byte At: " + _caretAt.ToString() + " (0x" + _caretAt.ToString("X") + ")",
-                    _fontInfo, Brushes.Black, kIndentX + 220, kIndentY + panel.Height);
+                    _fontInfo, brush, kIndentX + 220, kIndentY + panel.Height);
             }
             else
             {
-                e.Graphics.DrawString("Lines: " + _lineCount.ToString(), _fontInfo, Brushes.Black,
+                e.Graphics.DrawString("Lines: " + _lineCount.ToString(), _fontInfo, brush,
                     kIndentX, kIndentY + panel.Height);
 
-                e.Graphics.DrawString("Line At: " + _caretAtY.ToString(), _fontInfo, Brushes.Black,
+                e.Graphics.DrawString("Line At: " + _caretAtY.ToString(), _fontInfo, brush,
                     kIndentX, kIndentY + panel.Height + kFontInfoSizePadded);
 
                 e.Graphics.DrawString("Byte At: " + _caretAt.ToString() + " (0x" + _caretAt.ToString("X") + ")",
-                    _fontInfo, Brushes.Black, kIndentX, kIndentY + panel.Height + kFontInfoSizePadded * 2);
+                    _fontInfo, brush, kIndentX, kIndentY + panel.Height + kFontInfoSizePadded * 2);
             }
         }
 
@@ -549,7 +619,7 @@ namespace HexEditProject
         private int calculateCaretAtByMousePosition(int mouseX, int mouseY)
         {
             int atX = Math.Min(Math.Max(mouseX / (_fontWidth * 2 + kHexIntervalX), 0), HorzHexCount - 1);
-            int atY = Math.Min(Math.Max(_viewLineOffset + (mouseY / (_fontSize + kHexIntervalY)), 0), _lineCount - 1);
+            int atY = Math.Min(Math.Max(_viewLineOffset + (mouseY / ((int)Font.Size + kHexIntervalY)), 0), _lineCount - 1);
             return Math.Min(Math.Max(atY * HorzHexCount + atX, 0), _bytes.Count);
         }
 
