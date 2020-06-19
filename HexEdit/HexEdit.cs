@@ -82,6 +82,19 @@ namespace HexEditProject
         }
         // ===
 
+        private Color _selectionColor = Color.FromArgb(80, 160, 255);
+        public Color SelectionColor
+        {
+            set
+            {
+                _selectionColor = value;
+            }
+            get
+            {
+                return _selectionColor;
+            }
+        }
+
         // HorzHexCount
         private int _horzHexCount;
         public int HorzHexCount
@@ -130,7 +143,7 @@ namespace HexEditProject
         }
 
         private List<byte> _bytes = new List<byte>();
-        private bool _isInserting = false;
+        private bool _isInputDone = true;
         private int _lineCount = 1;
         private int _viewLineOffset = 0;
 
@@ -144,17 +157,15 @@ namespace HexEditProject
         private int _caretAt = 0;
         private int _caretAtX = 0;
         private int _caretAtY = 0;
-        public int CaretAt 
+        private int CaretAt 
         {
             set
             {
                 _caretAt = Math.Max(Math.Min(value, _bytes.Count), 0);
 
-                if (HorzHexCount > 0)
-                {
-                    _caretAtX = _caretAt % HorzHexCount;
-                    _caretAtY = _caretAt / HorzHexCount;
-                }
+                Point xy = getSelXyFromIndex(_caretAt);
+                _caretAtX = xy.X;
+                _caretAtY = xy.Y;
 
                 updateLineCount();
                 updateScrollbar();
@@ -168,7 +179,7 @@ namespace HexEditProject
                     vScrollBar.Value = _caretAtY - VertHexCount + 1;
                 }
 
-                _isInserting = false;
+                _isInputDone = true;
                 
                 showCaret(true);
             }
@@ -178,6 +189,39 @@ namespace HexEditProject
             }
         }
         // ===
+
+        // === Selection
+        private int _selectionStart = 0;
+        public int SelectionStart
+        {
+            set
+            {
+                _selectionStart = Math.Max(Math.Min(value, _bytes.Count), 0);
+            }
+            get
+            {
+                return _selectionStart;
+            }
+        }
+
+        private int _selectionLength = 0;
+        public int SelectionLength
+        {
+            set
+            {
+                _selectionLength = Math.Max(Math.Min(value, _bytes.Count - SelectionStart), 0);
+            }
+            get
+            {
+                return _selectionLength;
+            }
+        }
+        // ===
+
+        public bool HasSelection()
+        {
+            return SelectionLength > 0;
+        }
 
         public HexEdit()
         {
@@ -206,6 +250,22 @@ namespace HexEditProject
             VertHexCount = 8;
 
             updateFontInfoColor();
+        }
+
+        private Point getSelXyFromIndex(int index)
+        {
+            Point result = new Point(0, 0);
+            if (HorzHexCount > 0)
+            {
+                result.X = index % HorzHexCount;
+                result.Y = index / HorzHexCount;
+            }
+            return result;
+        }
+
+        private int getSelIndexFromXy(int x, int y)
+        {
+            return (x + y * HorzHexCount);
         }
 
         private void Panel_MouseWheel(object sender, MouseEventArgs e)
@@ -321,7 +381,7 @@ namespace HexEditProject
                 }
 
                 Brush brush = new SolidBrush(ForeColor);
-                if (i == CaretAt && _isInserting == true)
+                if (i == CaretAt && _isInputDone == false)
                 {
                     brush = new SolidBrush(InsertingForeColor);
                 }
@@ -329,6 +389,57 @@ namespace HexEditProject
                 
                 finalX += kHexIntervalX * 2;
                 e.Graphics.DrawString(hexStr.Substring(1, 1), Font, brush, finalX, finalY);
+            }
+        }
+
+        private void drawSelection(PaintEventArgs e)
+        {
+            if (SelectionLength > 0)
+            {
+                Brush brush = new SolidBrush(Color.FromArgb(100, SelectionColor.R, SelectionColor.G, SelectionColor.B));
+
+                int selectionEnd = SelectionStart + SelectionLength;
+                Point selectionStartXy = getSelXyFromIndex(SelectionStart);
+                Point selectionEndXy = getSelXyFromIndex(selectionEnd);
+
+                int selectionLineCount = selectionEndXy.Y - selectionStartXy.Y + 1;
+                if (selectionLineCount == 1)
+                {
+                    int pixelX = kCaretOffsetX + _fontWidth * selectionStartXy.X * 2 + kHexIntervalX * selectionStartXy.X;
+                    int pixelY = kCaretOffsetY + ((int)Font.Size + kHexIntervalY) * (selectionStartXy.Y - _viewLineOffset);
+
+                    int pixelWidth = _fontWidth * SelectionLength * 2 + kHexIntervalX * SelectionLength;
+                    e.Graphics.FillRectangle(brush, pixelX, pixelY, pixelWidth, Font.Height);
+                }
+                else
+                {
+                    for (int i = 0; i < selectionLineCount; ++i)
+                    {
+                        int pixelX = kCaretOffsetX;
+                        int currentLineSelectionLength;
+                        if (i == 0)
+                        {
+                            // 첫번째 줄
+                            pixelX = kCaretOffsetX + _fontWidth * selectionStartXy.X * 2 + kHexIntervalX * selectionStartXy.X;
+                            currentLineSelectionLength = HorzHexCount - selectionStartXy.X;
+                        }
+                        else if (i == selectionLineCount - 1)
+                        {
+                            // 마지막 줄
+                            currentLineSelectionLength = selectionEndXy.X;
+                        }
+                        else
+                        {
+                            // 중간 줄
+                            currentLineSelectionLength = HorzHexCount;
+                        }
+
+                        int lineAt = selectionStartXy.Y + i;
+                        int pixelY = kCaretOffsetY + ((int)Font.Size + kHexIntervalY) * (lineAt - _viewLineOffset);
+                        int pixelWidth = (_fontWidth * 2 + kHexIntervalX) * currentLineSelectionLength;
+                        e.Graphics.FillRectangle(brush, pixelX, pixelY, pixelWidth, Font.Height);
+                    }
+                }
             }
         }
 
@@ -412,6 +523,8 @@ namespace HexEditProject
         {
             drawHexString(e);
 
+            drawSelection(e);
+
             long tickNow = (DateTime.Now.Ticks / 10000);
             if (tickNow >= _caretPrevTick + _caretBlinkTime * 2)
             {
@@ -435,6 +548,8 @@ namespace HexEditProject
 
         private void panel_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
+            int oldCaretAt = CaretAt;
+
             // Ctrl + X
             if (e.Control == true && e.KeyCode == Keys.X)
             {
@@ -474,6 +589,8 @@ namespace HexEditProject
                 string clipboardStr = Clipboard.GetText();
                 if (clipboardStr != null)
                 {
+                    SelectionLength = 0;
+
                     int byteCountGuess = clipboardStr.Length / 2;
                     byte parsedByte;
                     for (int i = 0; i < byteCountGuess; ++i)
@@ -490,72 +607,48 @@ namespace HexEditProject
 
             if (e.KeyCode == Keys.Up || e.KeyCode == Keys.Down || e.KeyCode == Keys.Left || e.KeyCode == Keys.Right)
             {
-                showCaret(true);
-
                 e.IsInputKey = true;
             }
 
-            if (e.KeyCode == Keys.Left)
+            int newCaretAt;
+            switch (e.KeyCode)
             {
-                --CaretAt;
-            }
-            else if (e.KeyCode == Keys.Right)
-            {
-                ++CaretAt;
-            }
-            else if (e.KeyCode == Keys.Up)
-            {
-                int newSelectionStart = _caretAtX + (_caretAtY - 1) * HorzHexCount;
-                if (newSelectionStart >= 0)
-                {
-                    CaretAt = newSelectionStart;
-                }
-            }
-            else if (e.KeyCode == Keys.Down)
-            {
-                int newSelectionStart = _caretAtX + (_caretAtY + 1) * HorzHexCount;
-                if (_lineCount > _caretAtY + 1)
-                {
-                    CaretAt = newSelectionStart;
-                }
-            }
-            else if (e.KeyCode == Keys.Home)
-            {
-                CaretAt = 0;
-            }
-            else if (e.KeyCode == Keys.End)
-            {
-                CaretAt = _bytes.Count;
+                case Keys.Left:
+                    --CaretAt;
+                    break;
+                case Keys.Right:
+                    ++CaretAt;
+                    break;
+                case Keys.Up:
+                    newCaretAt = getSelIndexFromXy(_caretAtX, _caretAtY - 1);
+                    if (newCaretAt >= 0)
+                    {
+                        CaretAt = newCaretAt;
+                    }
+                    break;
+                case Keys.Down:
+                    newCaretAt = getSelIndexFromXy(_caretAtX, _caretAtY + 1);
+                    if (_lineCount > _caretAtY + 1)
+                    {
+                        CaretAt = newCaretAt;
+                    }
+                    break;
+                case Keys.Home:
+                    CaretAt = 0;
+                    break;
+                case Keys.End:
+                    CaretAt = _bytes.Count;
+                    break;
             }
 
             // 수정
             if (e.KeyCode == Keys.Back)
             {
-                if (_bytes.Count > 0 && CaretAt > 0)
-                {
-                    if (_isInserting == true)
-                    {
-                        _bytes.RemoveAt(CaretAt);
-                        _isInserting = false;
-                    }
-                    else
-                    {
-                       _bytes.RemoveAt(CaretAt - 1);
-                        --CaretAt;
-                    }
-                    
-                    updateLineCount();
-                }
+                deleteBefore();
             }
             else if (e.KeyCode == Keys.Delete)
             {
-                if (_bytes.Count > 0 && CaretAt < _bytes.Count)
-                {
-                    _bytes.RemoveAt(CaretAt);
-                    updateLineCount();
-
-                    _isInserting = false;
-                }
+                deleteAfter();
             }
 
             if (isValidKeyInput(e.KeyCode) == true)
@@ -566,7 +659,20 @@ namespace HexEditProject
                     keyValue -= 48;
                 }
 
-                if (_isInserting == true)
+                if (_isInputDone == true)
+                {
+                    deleteSelection();
+
+                    string hexStr = "";
+                    hexStr += (char)keyValue;
+                    hexStr += "0";
+                    byte parsed = byte.Parse(hexStr, System.Globalization.NumberStyles.HexNumber);
+                    _bytes.Insert(CaretAt, parsed);
+                    updateLineCount();
+
+                    _isInputDone = false;
+                }
+                else
                 {
                     byte currByte = _bytes[CaretAt];
                     string hexStr = currByte.ToString("X");
@@ -577,23 +683,110 @@ namespace HexEditProject
                     updateLineCount();
                     ++CaretAt;
                 }
-                else
-                {
-                    string hexStr = "";
-                    hexStr += (char)keyValue;
-                    hexStr += "0";
-                    byte parsed = byte.Parse(hexStr, System.Globalization.NumberStyles.HexNumber);
-                    _bytes.Insert(CaretAt, parsed);
-                    updateLineCount();
-
-                    _isInserting = true;
-                }
             }
+
+            updateSelection(e.Shift, oldCaretAt);
 
             updateScrollbar();
 
             panel.Focus();
             panel.Invalidate();
+        }
+
+        private void deleteBefore()
+        {
+            if (deleteSelection() == true)
+            {
+                return;
+            }
+
+            if (_bytes.Count > 0 && CaretAt > 0)
+            {
+                if (_isInputDone == true)
+                {
+                    _bytes.RemoveAt(CaretAt - 1);
+                    --CaretAt;
+                }
+                else
+                {
+                    _bytes.RemoveAt(CaretAt);
+                    _isInputDone = true;
+                }
+
+                updateLineCount();
+            }
+        }
+        
+        private void deleteAfter()
+        {
+            if (deleteSelection() == true)
+            {
+                return;
+            }
+
+            if (_bytes.Count > 0 && CaretAt < _bytes.Count)
+            {
+                _bytes.RemoveAt(CaretAt);
+                updateLineCount();
+
+                _isInputDone = true;
+            }
+        }
+
+        private bool deleteSelection()
+        {
+            if (HasSelection() == true)
+            {
+                CaretAt = SelectionStart;
+                _bytes.RemoveRange(SelectionStart, SelectionLength);
+                SelectionLength = 0;
+                return true;
+            }
+            return false;
+        }
+
+        private void updateSelection(bool maintainSelection, int oldCaretAt)
+        {
+            // Caret의 위치가 변경되었을 때
+            if (maintainSelection == true)
+            {
+                if (oldCaretAt != CaretAt)
+                {
+                    // Caret의 깜빡임을 초기화한다.
+                    showCaret(true);
+
+                    if (HasSelection() == false)
+                    {
+                        if (CaretAt < oldCaretAt)
+                        {
+                            SelectionStart = CaretAt;
+                            SelectionLength = oldCaretAt - SelectionStart;
+                        }
+                        else
+                        {
+                            SelectionStart = oldCaretAt;
+                            SelectionLength = CaretAt - SelectionStart;
+                        }
+                    }
+                    else
+                    {
+                        int selectionEnd = SelectionStart + SelectionLength;
+                        if (oldCaretAt == SelectionStart)
+                        {
+                            SelectionStart = CaretAt;
+                            SelectionLength = selectionEnd - SelectionStart;
+                        }
+                        else
+                        {
+                            SelectionLength = CaretAt - SelectionStart;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                SelectionLength = 0;
+            }
         }
 
         private void panel_Enter(object sender, EventArgs e)
@@ -627,13 +820,34 @@ namespace HexEditProject
         {
             if (e.Button == MouseButtons.Left)
             {
+                int oldCaretAt = CaretAt;
                 CaretAt = calculateCaretAtByMousePosition(e.X, e.Y);
+
+                if (oldCaretAt != CaretAt)
+                {
+                    updateSelection(true, oldCaretAt);
+                }
             }
         }
 
         private void panel_MouseDown(object sender, MouseEventArgs e)
         {
+            int oldCaretAt = CaretAt;
             CaretAt = calculateCaretAtByMousePosition(e.X, e.Y);
+
+            if (oldCaretAt == CaretAt)
+            {
+                updateSelection(false, oldCaretAt);
+            }
+            else
+            {
+                bool isShiftPressed = false;
+                if ((ModifierKeys & Keys.Shift) != 0)
+                {
+                    isShiftPressed = true;
+                }
+                updateSelection(isShiftPressed, oldCaretAt);
+            }
         }
     }
 }

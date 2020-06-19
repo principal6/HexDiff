@@ -70,7 +70,6 @@
             // 
             // hexEdit1
             // 
-            this.hexEdit1.CaretAt = 0;
             this.hexEdit1.EditBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(255)))));
             this.hexEdit1.Font = new System.Drawing.Font("Consolas", 12F);
             this.hexEdit1.HorzHexCount = 16;
@@ -79,6 +78,7 @@
             this.hexEdit1.Location = new System.Drawing.Point(0, 0);
             this.hexEdit1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.hexEdit1.Name = "hexEdit1";
+            this.hexEdit1.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(80)))), ((int)(((byte)(160)))), ((int)(((byte)(255)))));
             this.hexEdit1.Size = new System.Drawing.Size(430, 202);
             this.hexEdit1.TabIndex = 0;
             this.hexEdit1.VertHexCount = 8;
