@@ -773,12 +773,32 @@ namespace HexEditProject
                         int selectionEnd = SelectionStart + SelectionLength;
                         if (oldCaretAt == SelectionStart)
                         {
-                            SelectionStart = CaretAt;
-                            SelectionLength = selectionEnd - SelectionStart;
+                            // 왼쪽 선택 (맨 앞에 Caret 이 있었다)
+                            if (CaretAt > selectionEnd)
+                            {
+                                // 오른쪽 선택으로 바뀐다
+                                SelectionStart = selectionEnd;
+                                SelectionLength = CaretAt - SelectionStart;
+                            }
+                            else
+                            {
+                                SelectionStart = CaretAt;
+                                SelectionLength = selectionEnd - SelectionStart;
+                            }
                         }
                         else
                         {
-                            SelectionLength = CaretAt - SelectionStart;
+                            // 오른쪽 선택 (맨 뒤에 Caret 이 있었다)
+                            if (CaretAt < SelectionStart)
+                            {
+                                // 왼쪽 선택으로 바뀐다
+                                SelectionLength = SelectionStart - CaretAt;
+                                SelectionStart = CaretAt;
+                            }
+                            else
+                            {
+                                SelectionLength = CaretAt - SelectionStart;
+                            }
                         }
                     }
                 }
