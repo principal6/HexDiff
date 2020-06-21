@@ -366,6 +366,9 @@ namespace HexEditProject
 
         private void drawHexString(PaintEventArgs e)
         {
+            Brush brush;
+            Brush brushDefault = new SolidBrush(ForeColor);
+            Brush brushInserting = new SolidBrush(InsertingForeColor);
             for (int i = 0; i < _bytes.Count; ++i)
             {
                 int x = i % HorzHexCount;
@@ -374,17 +377,26 @@ namespace HexEditProject
                 int finalX = _fontWidth * (x * 2) + kHexIntervalX * x;
                 int finalY = ((int)Font.Size + kHexIntervalY) * (y - _viewLineOffset);
 
+                if (finalY < 0 || finalY > panel.Height)
+                {
+                    continue;
+                }
+
                 string hexStr = _bytes[i].ToString("X");
                 if (hexStr.Length == 1)
                 {
                     hexStr = "0" + hexStr;
                 }
 
-                Brush brush = new SolidBrush(ForeColor);
                 if (i == CaretAt && _isInputDone == false)
                 {
-                    brush = new SolidBrush(InsertingForeColor);
+                    brush = brushInserting;
                 }
+                else
+                {
+                    brush = brushDefault;
+                }
+
                 e.Graphics.DrawString(hexStr.Substring(0, 1), Font, brush, finalX, finalY);
                 
                 finalX += kHexIntervalX * 2;
@@ -454,9 +466,15 @@ namespace HexEditProject
                     kInfoLineNumberOffsetX, kInfoLineNumberOffsetY + finalY);
             }
 
+            // === 눈금선
             int midLineX = kIndentX + panel.Width / 2;
+            int quarterLineX = kIndentX + panel.Width / 4;
+            int threeQuarterLineX = kIndentX + panel.Width / 4 * 3;
             int midLineY = (kIndentY - kMidLineHeight) / 2;
             e.Graphics.DrawLine(Pens.Black, midLineX, midLineY, midLineX, midLineY + kMidLineHeight);
+            e.Graphics.DrawLine(Pens.Black, quarterLineX, midLineY + kMidLineHeight * 0.25f, quarterLineX, midLineY + kMidLineHeight);
+            e.Graphics.DrawLine(Pens.Black, threeQuarterLineX, midLineY + kMidLineHeight * 0.25f, threeQuarterLineX, midLineY + kMidLineHeight);
+            // ===
 
             if (HorzHexCount >= 16)
             {
@@ -550,22 +568,33 @@ namespace HexEditProject
         {
             int oldCaretAt = CaretAt;
 
+            if (e.Control == true)
+            {
+                e.IsInputKey = true;
+            }
+
             // Ctrl + X
             if (e.Control == true && e.KeyCode == Keys.X)
             {
                 if (_bytes.Count > 0)
                 {
                     int byteAt = Math.Min(CaretAt, _bytes.Count - 1);
-                    byte caretByte = _bytes[byteAt];
-                    string byteStr = caretByte.ToString("X");
-                    Clipboard.SetText(byteStr);
-
-                    _bytes.RemoveAt(byteAt);
-
-                    if (CaretAt > _bytes.Count)
+                    string byteStr = "";
+                    if (HasSelection() == true)
                     {
-                        CaretAt = _bytes.Count;
+                        for (int i = 0; i < SelectionLength; ++i)
+                        {
+                            byteStr += _bytes[SelectionStart + i].ToString("X");
+                        }
+                        deleteSelection();
                     }
+                    else
+                    {
+                        byteStr = _bytes[byteAt].ToString("X");
+                        deleteAt(byteAt);
+                    }
+
+                    Clipboard.SetText(byteStr);
                 }
                 return;
             }
@@ -576,8 +605,19 @@ namespace HexEditProject
                 if (_bytes.Count > 0)
                 {
                     int byteAt = Math.Min(CaretAt, _bytes.Count - 1);
-                    byte caretByte = _bytes[byteAt];
-                    string byteStr = caretByte.ToString("X");
+                    string byteStr = "";
+                    if (HasSelection() == true)
+                    {
+                        for (int i = 0; i < SelectionLength; ++i)
+                        {
+                            byteStr += _bytes[SelectionStart + i].ToString("X");
+                        }
+                    }
+                    else
+                    {
+                        byteStr = _bytes[byteAt].ToString("X");
+                    }
+
                     Clipboard.SetText(byteStr);
                 }
                 return;
@@ -589,7 +629,7 @@ namespace HexEditProject
                 string clipboardStr = Clipboard.GetText();
                 if (clipboardStr != null)
                 {
-                    SelectionLength = 0;
+                    clearSelection();
 
                     int byteCountGuess = clipboardStr.Length / 2;
                     byte parsedByte;
@@ -693,6 +733,20 @@ namespace HexEditProject
             panel.Invalidate();
         }
 
+        private bool deleteAt(int byteAt)
+        {
+            if (_bytes.Count == 0)
+            {
+                return false;
+            }
+
+            int byteAtTrimmed = Math.Min(byteAt, _bytes.Count - 1);
+            _bytes.RemoveAt(byteAtTrimmed);
+
+            CaretAt = Math.Min(CaretAt, _bytes.Count);
+            return true;
+        }
+
         private void deleteBefore()
         {
             if (deleteSelection() == true)
@@ -745,12 +799,18 @@ namespace HexEditProject
             return false;
         }
 
+        private void clearSelection()
+        {
+            SelectionStart = 0;
+            SelectionLength = 0;
+        }
+
         private void updateSelection(bool maintainSelection, int oldCaretAt)
         {
             // Caret의 위치가 변경되었을 때
-            if (maintainSelection == true)
+            if (oldCaretAt != CaretAt)
             {
-                if (oldCaretAt != CaretAt)
+                if (maintainSelection == true)
                 {
                     // Caret의 깜빡임을 초기화한다.
                     showCaret(true);
@@ -802,10 +862,10 @@ namespace HexEditProject
                         }
                     }
                 }
-            }
-            else
-            {
-                SelectionLength = 0;
+                else
+                {
+                    SelectionLength = 0;
+                }
             }
         }
 
@@ -857,7 +917,7 @@ namespace HexEditProject
 
             if (oldCaretAt == CaretAt)
             {
-                updateSelection(false, oldCaretAt);
+                clearSelection();
             }
             else
             {
