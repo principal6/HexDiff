@@ -1,0 +1,10 @@
+{
+  "FileVersion": 2,
+  "Id": "c051d924-80db-4c04-9b51-113f83b48ce7",
+  "Items": [
+    {
+      "Id": "f3354c9c-716d-4257-ab54-cd2f5ee36a58",
+      "Command": "Hello, World!"
+    }
+  ]
+}

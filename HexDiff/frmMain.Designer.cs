@@ -30,8 +30,8 @@
         {
             this.dynamicTabControl1 = new DynamicTabControl.DynamicTabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.hexEdit1 = new HexEditProject.HexEdit();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.hexEdit1 = new HexEditProject.HexEdit();
             this.dynamicTabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.SuspendLayout();
@@ -58,6 +58,16 @@
             this.tabPage1.Text = "tabPage1";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
+            // tabPage2
+            // 
+            this.tabPage2.Location = new System.Drawing.Point(4, 22);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage2.Size = new System.Drawing.Size(806, 385);
+            this.tabPage2.TabIndex = 1;
+            this.tabPage2.Text = "tabPage2";
+            this.tabPage2.UseVisualStyleBackColor = true;
+            // 
             // hexEdit1
             // 
             this.hexEdit1.EditBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(255)))));
@@ -75,24 +85,16 @@
             this.hexEdit1.TabIndex = 0;
             this.hexEdit1.VertHexCount = 16;
             // 
-            // tabPage2
-            // 
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(466, 224);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "tabPage2";
-            this.tabPage2.UseVisualStyleBackColor = true;
-            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(947, 451);
+            this.ClientSize = new System.Drawing.Size(1064, 451);
             this.Controls.Add(this.dynamicTabControl1);
             this.Name = "frmMain";
             this.Text = "HexDiff";
+            this.Activated += new System.EventHandler(this.frmMain_Activated);
+            this.Load += new System.EventHandler(this.frmMain_Load);
             this.dynamicTabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.ResumeLayout(false);
