@@ -3,11 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30128.74
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HexEditProject", "HexEdit\HexEditProject.csproj", "{67D727C4-23DD-4579-82E0-1110BA1C8926}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DynamicTabControl", "DynamicTabControl\DynamicTabControl.csproj", "{AA5764A5-23A4-4A69-AB7A-0BB5ED84204C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HexDiff", "HexDiff\HexDiff.csproj", "{C051D924-80DB-4C04-9B51-113F83B48CE7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TreeStructure", "TreeStructure\TreeStructure.csproj", "{BB8B18D1-75E8-4BD1-A75C-627EC370E1E4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HexViewProject", "HexViewProject\HexViewProject.csproj", "{8F062737-47AC-481E-A1BC-A6F5ADCC6A92}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HexEditProject", "HexEditProject\HexEditProject.csproj", "{67D727C4-23DD-4579-82E0-1110BA1C8926}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,10 +19,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{67D727C4-23DD-4579-82E0-1110BA1C8926}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{67D727C4-23DD-4579-82E0-1110BA1C8926}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{67D727C4-23DD-4579-82E0-1110BA1C8926}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{67D727C4-23DD-4579-82E0-1110BA1C8926}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AA5764A5-23A4-4A69-AB7A-0BB5ED84204C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AA5764A5-23A4-4A69-AB7A-0BB5ED84204C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA5764A5-23A4-4A69-AB7A-0BB5ED84204C}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -27,6 +27,18 @@ Global
 		{C051D924-80DB-4C04-9B51-113F83B48CE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C051D924-80DB-4C04-9B51-113F83B48CE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C051D924-80DB-4C04-9B51-113F83B48CE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB8B18D1-75E8-4BD1-A75C-627EC370E1E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB8B18D1-75E8-4BD1-A75C-627EC370E1E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB8B18D1-75E8-4BD1-A75C-627EC370E1E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB8B18D1-75E8-4BD1-A75C-627EC370E1E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F062737-47AC-481E-A1BC-A6F5ADCC6A92}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F062737-47AC-481E-A1BC-A6F5ADCC6A92}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F062737-47AC-481E-A1BC-A6F5ADCC6A92}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F062737-47AC-481E-A1BC-A6F5ADCC6A92}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67D727C4-23DD-4579-82E0-1110BA1C8926}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67D727C4-23DD-4579-82E0-1110BA1C8926}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67D727C4-23DD-4579-82E0-1110BA1C8926}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67D727C4-23DD-4579-82E0-1110BA1C8926}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -30,8 +30,12 @@
         {
             this.dynamicTabControl1 = new DynamicTabControl.DynamicTabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
             this.hexEdit1 = new HexEditProject.HexEdit();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.button1 = new System.Windows.Forms.Button();
+            this.openFileDlg = new System.Windows.Forms.OpenFileDialog();
+            this.colorDialog1 = new System.Windows.Forms.ColorDialog();
+            this.hexDiffView1 = new HexDiff.HexDiffTreeView();
             this.dynamicTabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.SuspendLayout();
@@ -58,16 +62,6 @@
             this.tabPage1.Text = "tabPage1";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
-            // tabPage2
-            // 
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(806, 385);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "tabPage2";
-            this.tabPage2.UseVisualStyleBackColor = true;
-            // 
             // hexEdit1
             // 
             this.hexEdit1.EditBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(255)))));
@@ -85,11 +79,44 @@
             this.hexEdit1.TabIndex = 0;
             this.hexEdit1.VertHexCount = 16;
             // 
+            // tabPage2
+            // 
+            this.tabPage2.Location = new System.Drawing.Point(4, 22);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage2.Size = new System.Drawing.Size(806, 385);
+            this.tabPage2.TabIndex = 1;
+            this.tabPage2.Text = "tabPage2";
+            this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(822, 5);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 2;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // openFileDlg
+            // 
+            this.openFileDlg.FileName = "openFileDialog1";
+            // 
+            // hexDiffView1
+            // 
+            this.hexDiffView1.Location = new System.Drawing.Point(822, 34);
+            this.hexDiffView1.Name = "hexDiffView1";
+            this.hexDiffView1.Size = new System.Drawing.Size(238, 385);
+            this.hexDiffView1.TabIndex = 3;
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1064, 451);
+            this.Controls.Add(this.hexDiffView1);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.dynamicTabControl1);
             this.Name = "frmMain";
             this.Text = "HexDiff";
@@ -107,5 +134,9 @@
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;
         private HexEditProject.HexEdit hexEdit1;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.OpenFileDialog openFileDlg;
+        private System.Windows.Forms.ColorDialog colorDialog1;
+        private HexDiffTreeView hexDiffView1;
     }
 }

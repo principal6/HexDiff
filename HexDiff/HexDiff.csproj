@@ -70,10 +70,19 @@
     <Compile Include="frmMain.Designer.cs">
       <DependentUpon>frmMain.cs</DependentUpon>
     </Compile>
+    <Compile Include="HexDiffTreeView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="HexDiffTreeView.Designer.cs">
+      <DependentUpon>HexDiffTreeView.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="frmMain.resx">
       <DependentUpon>frmMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HexDiffTreeView.resx">
+      <DependentUpon>HexDiffTreeView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -102,9 +111,17 @@
       <Project>{aa5764a5-23a4-4a69-ab7a-0bb5ed84204c}</Project>
       <Name>DynamicTabControl</Name>
     </ProjectReference>
-    <ProjectReference Include="..\HexEdit\HexEditProject.csproj">
+    <ProjectReference Include="..\HexEditProject\HexEditProject.csproj">
       <Project>{67d727c4-23dd-4579-82e0-1110ba1c8926}</Project>
       <Name>HexEditProject</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\HexViewProject\HexViewProject.csproj">
+      <Project>{8f062737-47ac-481e-a1bc-a6f5adcc6a92}</Project>
+      <Name>HexViewProject</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TreeStructure\TreeStructure.csproj">
+      <Project>{bb8b18d1-75e8-4bd1-a75c-627ec370e1e4}</Project>
+      <Name>TreeStructure</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace HexDiff
@@ -26,6 +19,15 @@ namespace HexDiff
         private void frmMain_Activated(object sender, EventArgs e)
         {
             hexEdit1.Focus();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            DialogResult result = openFileDlg.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                hexDiffView1.loadHexViewFromFile(openFileDlg.FileName);
+            }
         }
     }
 }

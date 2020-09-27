@@ -1,0 +1,29 @@
+<!--
+Chunk는 계층구조로 구성 가능.
+Chunk가 계층구조일 때 Content 는 가장 상위 Content를 사용.
+-->
+<HexDiff>
+	<TypeDefinition>
+		<Type Name="TestDataType" Content="Data type for test" Format="UV[{0}], B[{1}]">
+			<Chunk Name="UV">
+				<Chunk Name="u" Type="Float"/>
+				<Chunk Name="v" Type="Float"/>
+			</Chunk>
+			<Chunk Name="B" Type="Float"/>
+		</Type>
+		<Type Name="Float2" Content="Vector type consisting of 2 float values" Format="({0}, {1})">
+			<Chunk Name="x" Type="Float"/>
+			<Chunk Name="y" Type="Float"/>
+		</Type>
+		<Type Name="Float2x2" Content="Matrix type of 2x2 float values" Format="{0}\n{1}">
+			<Chunk Name="r0" Type="Float2"/>
+			<Chunk Name="r1" Type="Float2"/>
+		</Type>
+	</TypeDefinition>
+	<Document DefaultCodePage="949">
+		<Chunk Name="Vec" Type="Float2"/>
+		<Chunk Name="A" Type="TestDataType"/>
+		<Chunk Name="B" Type="Uint8" Content="A byte"/>
+		<Chunk Name="Mat" Type="Float2x2"/>
+	</Document>
+</HexDiff>
